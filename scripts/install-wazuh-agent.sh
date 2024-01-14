@@ -26,6 +26,6 @@ if [[ -z $AGENT_NAME || -z $MANAGER_HOST || -z $AGENT_GROUP ]]; then
     exit 1
 fi
 
-toolbox create $AGENT_NAME
+toolbox create $AGENT_NAME -y
 toolbox run --container $AGENT_NAME "sudo WAZUH_MANAGER=$MANAGER_HOST WAZUH_AGENT_GROUP=$AGENT_GROUP WAZUH_AGENT_NAME=$AGENT_NAME yum install -y https://packages.wazuh.com/4.x/yum/wazuh-agent-4.5.2-1.x86_64.rpm"
 toolbox run --container $AGENT_NAME "sudo /var/ossec/bin/wazuh-control start"
