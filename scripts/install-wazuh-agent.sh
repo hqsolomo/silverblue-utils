@@ -33,5 +33,5 @@ fi
 
 # Create container then install wazuh-agent in it with arguments
 toolbox create $AGENT_NAME -y
-toolbox run --container $AGENT_NAME sudo WAZUH_MANAGER='$MANAGER_HOST' WAZUH_AGENT_GROUP='$AGENT_GROUP' WAZUH_AGENT_NAME='$AGENT_NAME' yum install -y https://packages.wazuh.com/4.x/yum/wazuh-agent-4.5.2-1.x86_64.rpm
+toolbox run --container $AGENT_NAME sudo WAZUH_MANAGER="$MANAGER_HOST" WAZUH_AGENT_GROUP="$AGENT_GROUP" WAZUH_AGENT_NAME="$AGENT_NAME" yum install -y https://packages.wazuh.com/4.x/yum/wazuh-agent-4.5.2-1.x86_64.rpm
 toolbox run --container $AGENT_NAME sudo /var/ossec/bin/wazuh-control start
