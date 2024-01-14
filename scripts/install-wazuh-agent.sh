@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# install-wazuh-aent.sh runs a container matching host system, then sets up wazuh-agent
+# Tested on Fedora 39 Silverblue
+
 # Read arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
