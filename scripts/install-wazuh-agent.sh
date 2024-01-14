@@ -26,11 +26,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Explain tool if arguments are empty
-if [[ -z $AGENT_NAME || -z $MANAGER_HOST || -z $AGENT_GROUP ]]; then
-    echo "Usage: $0 --agent-name NAME --manager-host HOST --agent-group GROUP"
-    echo "--agent-name		Unique name for this agent. Also the name of the container"
+if [[ -z $MANAGER_HOST ]]; then
+    echo "Usage: $0 --manager-host WAZUH_MANAGER_HOST [ --agent-name WAZUH_AGENT_NAME --agent-group WAZUH_AGENT_GROUP ]"
     echo "--manager-host	Fully-qualified domain name or IP:[port]"
-    echo "--agent-group		The agent group from Wazuh to add this agent to"
+    echo "--agent-name		Unique name for this agent, wazuh-manager will use workstation's hostname if this is left blank. Also the name of the container- keep this in mind if agent-name is blank"
+    echo "--agent-group		The agent group from Wazuh to add this agent to, wazuh-manager will use 'default' if this is left blank"
     exit 1
 fi
 
