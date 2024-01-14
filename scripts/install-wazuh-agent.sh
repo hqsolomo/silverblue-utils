@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Read arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --agent-name)
@@ -14,10 +15,6 @@ while [[ $# -gt 0 ]]; do
             AGENT_GROUP=$2
             shift 2
             ;;
-        --agent-id)
-            AGENT_ID=$2
-            shift 2
-            ;;
         *)
             echo "Invalid argument: $1"
             exit 1
@@ -25,18 +22,16 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Explain tool if arguments are empty
 if [[ -z $AGENT_NAME || -z $MANAGER_HOST || -z $AGENT_GROUP ]]; then
-    echo "Usage: $0 --agent-name NAME --manager-host HOST --agent-group GROUP [--agent-id ID]"
+    echo "Usage: $0 --agent-name NAME --manager-host HOST --agent-group GROUP"
+    echo "--agent-name		Unique name for this agent. Also the name of the container"
+    echo "--manager-host	Fully-qualified domain name or IP:port"
+    echo "--agent-group		The agent group from Wazuh to add this agent to"
     exit 1
 fi
 
-# Check if AGENT_ID is empty, if so, set it to the default value
-if [[ -z $AGENT_ID ]]; then
-    AGENT_ID="-agent"
-fi
-
+# Create container then install wazuh-agent in it with arguments
 toolbox create $AGENT_NAME -y
-# Rest of your script
-toolbox run --container $AGENT_NAME sudo WAZUH_MANAGER='$MANAGER_HOST' WAZUH_AGENT_GROUP='$AGENT_GROUP' WAZUH_AGENT_NAME='$AGENT_NAME$AGENT_ID' yum install -y https://packages.wazuh.com/4.x/yum/wazuh-agent-4.5.2-1.x86_64.rpm
-wait
+toolbox run --container $AGENT_NAME sudo WAZUH_MANAGER='$MANAGER_HOST' WAZUH_AGENT_GROUP='$AGENT_GROUP' WAZUH_AGENT_NAME='$AGENT_NAME' yum install -y https://packages.wazuh.com/4.x/yum/wazuh-agent-4.5.2-1.x86_64.rpm
 toolbox run --container $AGENT_NAME sudo /var/ossec/bin/wazuh-control start
