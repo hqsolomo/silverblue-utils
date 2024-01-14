@@ -26,7 +26,7 @@ done
 if [[ -z $AGENT_NAME || -z $MANAGER_HOST || -z $AGENT_GROUP ]]; then
     echo "Usage: $0 --agent-name NAME --manager-host HOST --agent-group GROUP"
     echo "--agent-name		Unique name for this agent. Also the name of the container"
-    echo "--manager-host	Fully-qualified domain name or IP:port"
+    echo "--manager-host	Fully-qualified domain name or IP:[port]"
     echo "--agent-group		The agent group from Wazuh to add this agent to"
     exit 1
 fi
