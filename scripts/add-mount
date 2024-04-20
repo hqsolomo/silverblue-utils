@@ -138,7 +138,7 @@ main(){
     if ! _entry=$(build_entry); then exit $?; fi
     if ! make_mountpoint; then exit $?; fi
     # If we can't create a copy of /etc/fstab in /tmp there's probably a whole lot more we can't do, just abandon ship
-    if ! [ -f $(cp /etc/fstab /tmp/fstab.$$) ]; then get_error_msg 6; fi
+    if ! [ -f $(cp -p /etc/fstab /tmp/fstab.$$) ]; then get_error_msg 6; fi
     printf "Add \"%s\" to /etc/fstab? y/n [n]: " "${_entry}"
     read -r _commit
     if [[ "${_commit}" != y ]]; then printf "Will not add entry to /etc/fstab. Exiting.\n"; exit 0; fi
@@ -154,5 +154,6 @@ main(){
         sudo systemctl daemon-reload
     fi
     printf "%s completed.\n" "${BASENAME}"
+    rm -f /tmp/fstab.$$ 2>/dev/null
 }
 main "${1}" "${2}" "${3}" "${4}"
