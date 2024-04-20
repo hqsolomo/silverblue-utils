@@ -4,13 +4,42 @@ Tools and scripts I've cobbled together to simplify maintenance of my Fedora Sil
 
 ## Tool List
 
+### add-mount
+
+`add-mount` Creates a mount in /etc/fstab for you and applies the change. Creates a backup before modifying /etc/fstab.
+
+Dependencies:
+
+* `bash 4+` and it's dependencies. Installed on my workstation by default
+
+Syntax:  
+
+```bash
+    add-mount [-c cifs_version|-h|-v] local_or_remote_device mountpoint storage_type [credentials_file]
+```
+
+Arguments:  
+
+* local_or_remote_device, required. Path to a local device or IP address of CIFS/SMB or NFS share.  
+* mountpoint, required. Directory on local filesystem to mount device to.  
+* storage_type, required. The filesystem for this entry. Currently only supports CIFS/SMB and NFS (barely).
+* credentials_file, optional. A file containing credentials for the specified device.
+
+Options:  
+
+* -c cifs_version, what version of CIFS/SMB to use. Currently only supports 3.0.
+* -h help, prints the help text then exits.
+* -v version, prints the version number then exits.
+
+Notes:  
+
+* Currently working on a system to add/remove credentials for this.  
+
 ### install-wazuh-agent.sh
 
 `install-wazuh-agent.sh` Creates a container, then installs wazuh-agent in the container with `sudo`
 
-#### Dependencies
-
-install-wazuh-agent.sh is dependent on the following:
+Dependencies:  
 
 * `toolbox` and it's dependencies. Installed on my workstation by default
 
@@ -42,4 +71,3 @@ Notes:
 
 If these tools help you, consider helping others by sharing what you've worked on.
 
-FREE THE SOFTWARE
