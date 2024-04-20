@@ -154,6 +154,7 @@ main(){
         sudo systemctl daemon-reload
     fi
     printf "%s completed.\n" "${BASENAME}"
-    rm -f /tmp/fstab.$$ 2>/dev/null
+    # TODO implement auto restore of /etc/fstab if we hit errors after calling write_entry
+    #rm -f /tmp/fstab.$$ 2>/dev/null
 }
 main "${1}" "${2}" "${3}" "${4}"
