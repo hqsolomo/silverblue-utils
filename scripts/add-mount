@@ -2,7 +2,7 @@
 BASENAME=$(basename "${0}")
 VERSION="1.0.0"
 STORAGE_TYPES=("cifs" "nfs")
-ERROR_CODE="0" # TODO Try implementing error handling
+#ERROR_CODE="0" # TODO Try implementing error handling
 
 # TODO redo this, maybe {cat <<COVER ... COVER}|printf "%s\n" or something
 help_text(){
@@ -12,7 +12,6 @@ help_text(){
     echo "-c Uses the specified cifs version. Options are: 3.0"
     echo "-h Prints this help message then exits."
     echo "-v Prints the version number then exits."
-    echo "${_usage}"
 }
 
 # TODO implement switch for cifs version, default to 3.0
@@ -21,6 +20,8 @@ do
     case "${_flag}" in
         c)
             CIFS_VERSION="${OPTARG}"
+            printf "-c is not implemented at the moment. Will print value then skip.\n"
+            printf "cifs version=%s\n" "${CIFS_VERSION}"
             ;;
         h)
             help_text
@@ -29,6 +30,10 @@ do
         v)
             printf "%s\n" "${VERSION}"
             exit 0
+            ;;
+        *)
+            help_text
+            exit 1
             ;;
     esac
 done
@@ -43,10 +48,10 @@ is_member(){
 }
 
 check_params(){
-    if [ -z "${SOURCE}" -o -z "${MOUNTPOINT}" -o -z "${STORAGE_TYPE}" ]; then return 1; fi
-    if ! [[ -z $(grep "${MOUNTPOINT}" /etc/fstab) ]]; then return 2; fi
+    if [ -z "${SOURCE}" ] || [ -z "${MOUNTPOINT}" ] || [ -z "${STORAGE_TYPE}" ]; then return 1; fi
+    if ! "$(grep -q "${MOUNTPOINT}" /etc/fstab)"; then return 2; fi
     if ! is_member "${STORAGE_TYPE}" "${STORAGE_TYPES[@]}"; then return 3; fi
-    if [ "${STORAGE_TYPE}" == "cifs" -o "${STORAGE_TYPE}" == "nfs" ] && [ -z "${CREDS_PATH}" ]; then return 4; fi
+    if [ "${STORAGE_TYPE}" == "cifs" ] || [ "${STORAGE_TYPE}" == "nfs" ] && [ -z "${CREDS_PATH}" ]; then return 4; fi
     # TODO make sure all of the required params aren't dangerous
     #if ! sanitize_params; then return 5; fi
 }
@@ -66,11 +71,11 @@ load_params(){
 
 # TODO verify what's actually needed for NFS
 set_storage_type_options(){
-    if [ "${1}" == "cifs" -o "${1}" == "nfs" ]; then _creds="credentials=${CREDS_PATH}"; fi
+    if [ "${1}" == "cifs" ] || [ "${1}" == "nfs" ]; then _creds="credentials=${CREDS_PATH}"; fi
     if [ "${1}" == "cifs" ]
     then
         _vers="vers=3.0"
-        _who="uid=$(id -u $(whoami)),gid-$(id -g $(whoami))"
+        _who="uid=$(id -u "$(whoami)"),gid-$(id -g "$(whoami)")"
     fi
 }
 
@@ -127,7 +132,7 @@ get_error_msg(){
     esac
     printf "%s Aborting.\n" "${_msg}"
     printf "Enter \"%s -h\" for more information.\n" "${BASENAME}"
-    exit $1
+    exit "$1"
 }
 
 # Main logic
@@ -138,13 +143,13 @@ main(){
     if ! _entry=$(build_entry); then exit $?; fi
     if ! make_mountpoint; then exit $?; fi
     # If we can't create a copy of /etc/fstab in /tmp there's probably a whole lot more we can't do, just abandon ship
-    if ! [ -f $(cp -p /etc/fstab /tmp/fstab.$$) ]; then get_error_msg 6; fi
+    if ! [ -f "$(cp -p /etc/fstab /tmp/fstab.$$)" ]; then get_error_msg 6; fi
     printf "Add \"%s\" to /etc/fstab? y/n [n]: " "${_entry}"
     read -r _commit
     if [[ "${_commit}" != y ]]; then printf "Will not add entry to /etc/fstab. Exiting.\n"; exit 0; fi
     if ! write_entry "${_entry}"; then get_error_msg 7; fi
     #if ! printf "%s\n" "${_entry}"; then get_error_msg 7; fi
-    if [ -z $(grep "${MOUNTPOINT}" /etc/fstab) ]; then get_error_msg 8; fi
+    if "$(grep -q "${MOUNTPOINT}" /etc/fstab)"; then get_error_msg 8; fi
     printf "Entry for \"%s\" added to /etc/fstab. Would you like to reload all mountpoints in /etc/fstab now? y/n [n]: " "${MOUNTPOINT}"
     read -r _reload
     if [[ "${_reload}" != y ]]
