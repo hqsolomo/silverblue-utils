@@ -2,12 +2,20 @@
 APP_NAME="$1" # name for the app. also the name of the distrobox/docker container and app binary when downloaded
 APP_HOMEDIR_OR_CONTAINER_OPTIONS="$2" # --home value for distrobox container or run options for docker container. if flatpak, sets what remote flatpack is pulled from
 APP_BINARY_OR_CONTAINER_IMAGE="$3" # path to download app binary, container image, or specific flatpak
-while getopts "c:" _flag
+while getopts "c:f:t:" _flag
 do
     case "$_flag" in
         c)
-            _mode="$OPTARG" # mode 1 is for docker container install, 2 is for flatpak install, 3 is for package install. Anything else is user-provided binary
-            shift 2
+            printf "Option -c not implemented yet! Aborting for safety."
+            exit 1
+            ;;  
+        f)
+            printf "Option -f not implemented yet! Aborting for safety."
+            exit 1
+            ;;            
+        t)
+            _app_type="$OPTARG" # mode 1 is for docker container install, 2 is for flatpak install, 3 is for package install. Anything else is user-provided binary
+            if ! "$_app_type"; then shift 2; else shift; fi
             ;;
         *)
             printf "Invalid option \"%s: %s\". Aborting." "$_flag" "$OPTARG"
@@ -16,9 +24,9 @@ do
     esac
 done
 # if we're creating distrobox container and homedir doesn't exist, assume we need to mkdir and grab the binary
-if [ "$_mode" == 1 ]; then podman run -dit "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" --name="$APP_NAME" "$APP_BINARY_OR_CONTAINER_IMAGE"; # if we're creating a docker container, call podman run 
-elif [ "$_mode" == 2 ]; then flatpak install -y "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" "$APP_BINARY_OR_CONTAINER_IMAGE"; # if we're installing a flatpak
-elif [ "$_mode" == 3 ] # if we're installing an rpm-ostree package, call rpm-ostree. Use with caution
+if [ "$_app_type" == 1 ]; then podman run -dit "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" --name="$APP_NAME" "$APP_BINARY_OR_CONTAINER_IMAGE"; # if we're creating a docker container, call podman run 
+elif [ "$_app_type" == 2 ]; then flatpak install -y "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" "$APP_BINARY_OR_CONTAINER_IMAGE"; # if we're installing a flatpak
+elif [ "$_app_type" == 3 ] # if we're installing an rpm-ostree package, call rpm-ostree. Use with caution
 then
     sudo rpm-ostree install -y "$APP_NAME"
 else
