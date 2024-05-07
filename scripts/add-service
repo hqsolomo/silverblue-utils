@@ -1,16 +1,16 @@
 #!/bin/bash
 APP_NAME="$1" # name for the app. also the name of the distrobox/docker container and app binary when downloaded
-APP_HOMEDIR_OR_CONTAINER_OPTIONS="$2" # --home value for distrobox container or run options for docker container. if flatpak, sets what remote flatpack is pulled from
-APP_BINARY_OR_CONTAINER_IMAGE="$3" # path to download app binary, container image, or specific flatpak
+APP_HOMEDIR_OR_CONTAINER_OPTIONS="$2" # --home value for distrobox container or run options for docker container. if flatpak, sets what remote flatpack is pulled from. if package this would be options to the package manager
+APP_BINARY_OR_CONTAINER_IMAGE="$3" # path to download app binary, container image, or specific flatpak. if package manager, this would be extra packages
 while getopts "c:f:t:" _flag
 do
     case "$_flag" in
         c)
-            printf "Option -c not implemented yet! Aborting for safety."
+            printf "Option -c not implemented yet! Aborting for safety.\n"
             exit 1
             ;;  
         f)
-            printf "Option -f not implemented yet! Aborting for safety."
+            printf "Option -f not implemented yet! Aborting for safety.\n"
             exit 1
             ;;            
         t)
@@ -18,7 +18,7 @@ do
             if ! "$_app_type"; then shift 2; else shift; fi
             ;;
         *)
-            printf "Invalid option \"%s: %s\". Aborting." "$_flag" "$OPTARG"
+            printf "Invalid option \"%s: %s\". Aborting.\n" "$_flag" "$OPTARG"
             exit 1
             ;;
     esac
@@ -28,7 +28,10 @@ if [ "$_app_type" == 1 ]; then podman run -dit "$APP_HOMEDIR_OR_CONTAINER_OPTION
 elif [ "$_app_type" == 2 ]; then flatpak install -y "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" "$APP_BINARY_OR_CONTAINER_IMAGE"; # if we're installing a flatpak
 elif [ "$_app_type" == 3 ] # if we're installing an rpm-ostree package, call rpm-ostree. Use with caution
 then
-    sudo rpm-ostree install -y "$APP_NAME"
+    sudo -k rpm-ostree install -y "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" "$APP_NAME" "$APP_BINARY_OR_CONTAINER_IMAGE"
+elif [ "$_app_type" == 4 ] # if we're installing a custom script
+then
+    printf "Custom script app installs have not been implemented yet! Aborting for safety.\n"
 else
     # Create directory, download binary, and set executable bit on downloaded binary
     if ! "grep -q $APP_HOMEDIR_OR_CONTAINER_OPTIONS"
@@ -39,5 +42,5 @@ else
     fi
     # create and init distrobox container, then run binary
     distrobox create --home "$APP_HOMEDIR_OR_CONTAINER_OPTIONS" "$APP_NAME"
-    distrobox enter stash -- "$APP_HOMEDIR_OR_CONTAINER_OPTIONS"/"$APP_NAME"
+    distrobox enter stash -- "$APP_HOMEDIR_OR_CONTAINER_OPTIONS"/"$APP_NAME"-bin
 fi
