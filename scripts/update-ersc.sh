@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO: detect when base ER and ERSSC are mismatched and ask user if they'd like to update ERSC
+# TODO: detect when base ER and ERSC are mismatched and ask user if they'd like to update ERSC
 
 GAME_DIR="${1:-"~/Games/SteamLibrary/steamapps/common/ELDEN RING/Game/"}"
 ERSC_DOWNLOAD_URL="https://github.com/LukeYui/EldenRingSeamlessCoopRelease/releases/download/"
