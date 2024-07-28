@@ -41,9 +41,12 @@ cleanup(){
     rm -f "$1""$2".zip
 }
 
-main(){
-    backup_ersc "$GAME_DIR" "$ERSC_DIR" "$RUN_TIMESTAMP"
-    download_ersc "$GAME_DIR" "$ERSC_DOWNLOAD_URL" "$ERSC_VER" "$ERSC_NAME"
-    install_ersc "$GAME_DIR" "$ERSC_NAME" "$ERSC_DIR" "$RUN_TIMESTAMP" "$ERSC_CONFIG"
-    cleanup "$GAME_DIR" "$ERSC_NAME"
-}
+if backup_ersc "$GAME_DIR" "$ERSC_DIR" "$RUN_TIMESTAMP"
+then
+    if ! download_ersc "$GAME_DIR" "$ERSC_DOWNLOAD_URL" "$ERSC_VER" "$ERSC_NAME"; then logger "There was an error downloading ERSC version $ERSC_VER from $ERSC_DOWNLOAD_URL$ERSC_VER/ersc.zip. Aborting $BASENAME."; exit 1; fi
+    if ! install_ersc "$GAME_DIR" "$ERSC_NAME" "$ERSC_DIR" "$RUN_TIMESTAMP" "$ERSC_CONFIG"; then logger "ERSC updates have been downloaded to $GAME_DIR but there was an error installing ERSC updates. Please check $GAME_DIR for artifacts and/or to manually complete updates. Aborting $BASENAME."; exit 2; fi
+    if ! cleanup "$GAME_DIR" "$ERSC_NAME"; then logger "Could not cleanup update artifacts from $GAME_DIR. Please manually remove $GAME_DIR$ERSC_NAME.zip."; fi
+else
+    logger "Could not back up $GAME_DIR$ERSC_DIR. Aborting $BASENAME."
+fi
+logger "$BASENAME has updated ERSC to version $ERSC_VER. May grace guide you, o tarnished!"
